@@ -6,7 +6,7 @@ target
 *.class
 
 # Eclipse #
-.settings/
+.settings
 .classpath
 .project
 

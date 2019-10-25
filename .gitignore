@@ -1,0 +1,14 @@
+# IDEA #
+out
+target
+.idea
+*.iml
+*.class
+
+# Eclipse #
+.settings/
+.classpath
+.project
+
+# vscode #
+.vscode

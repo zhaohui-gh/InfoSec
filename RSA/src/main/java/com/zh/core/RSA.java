@@ -90,17 +90,13 @@ public class RSA {
         d = result[2];
         if (d.intValue() == 1) {
             // ax+by=1 x必须大于0
-            while (x.compareTo(BigInteger.ZERO) < 0) {
-                x = x.add(n);
-                y = y.subtract(a);
-            }
-//            System.out.println("a = " + a.toString());
-//            System.out.println("x = " + x.toString());
-//            System.out.println("n = " + n.toString());
-//            System.out.println("y = " + y.toString());
-//            System.out.println("gcd(a, n) = " + gcd(a, n).toString());
-//            System.out.println("ax + ny = " + a.multiply(x).add(n.multiply(y)));
-            return x;
+//            while (x.compareTo(BigInteger.ZERO) < 0) {
+//                x = x.add(n);
+//                y = y.subtract(a);
+//            }
+//            return x;
+            // ((x % n) + n) % n, 通过取模解决x为负数问题
+            return x.mod(n).add(n).mod(n);
         } else {
             return new BigInteger("0");
         }

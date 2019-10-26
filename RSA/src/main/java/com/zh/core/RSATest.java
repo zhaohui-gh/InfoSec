@@ -1,5 +1,6 @@
 package com.zh.core;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
@@ -54,16 +55,36 @@ public class RSATest {
 //        String testString = in.nextLine();
         String testString = "这是测试文本hahaha！^-^";
         System.out.println(testString);
-        BigInteger bigInteger = new BigInteger(testString.getBytes());
-        System.out.println(bigInteger.abs().toString());
+        try {
+            byte[] bytes = testString.getBytes("utf-8");
+//            BigInteger bigInteger = RSA.byteArrayToBigInteger(bytes);
+//            System.out.println(bigInteger.toString());
+//
+//            bytes = RSA.bigIntegerToByteArray(bigInteger);
+            BigInteger[] bigIntegers = RSA.doBlock(bytes, 8);
+            for (int i = 0; i < bigIntegers.length; i++) {
+                System.out.println(i);
+                System.out.println(bigIntegers[i].toString());
+            }
+            System.out.println("---------------------------------");
+            bytes = bigIntegers[bigIntegers.length-1].toByteArray();
+            System.out.println(RSA.byteArrayToInt(bytes));
+//            System.out.println(3 % 10);
 
-        System.out.println(bigInteger.toString());
-        BigInteger bigInteger1 = new BigInteger(1, testString.getBytes());
-        System.out.println(bigInteger1.toString());
-        String string = new String(bigInteger.toByteArray());
-        System.out.println(string);
-        String string1 = new String(bigInteger1.abs().toByteArray());
-        System.out.println(string1);
+//            System.out.println(new String(bytes, "utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+//        BigInteger bigInteger = new BigInteger(testString.getBytes());
+//        System.out.println(bigInteger.abs().toString());
+//
+//        System.out.println(bigInteger.toString());
+//        BigInteger bigInteger1 = new BigInteger(1, testString.getBytes());
+//        System.out.println(bigInteger1.toString());
+//        String string = new String(bigInteger.toByteArray());
+//        System.out.println(string);
+//        String string1 = new String(bigInteger1.abs().toByteArray());
+//        System.out.println(string1);
 //        try {
 //            byte[] bytes1 = new byte[4];  //用于加密的数组
 //

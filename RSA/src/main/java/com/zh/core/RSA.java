@@ -221,4 +221,30 @@ public class RSA {
         return value;
     }
 
+    /**
+     * byte[]转BigInteger,无符号
+     * @param a
+     * @return
+     */
+    public static BigInteger byteArrayToBigInteger(byte[] a) {
+        int byteLength = a.length;
+        int keep;
+
+        // Find first nonzero byte
+        for (keep = 0; keep < byteLength && a[keep] == 0; keep++)
+            ;
+
+        // Allocate new array and copy relevant part of input array
+        int intLength = ((byteLength - keep) + 3) >>> 2;
+        int[] result = new int[intLength];
+        int b = byteLength - 1;
+        for (int i = intLength-1; i >= 0; i--) {
+            result[i] = a[b--] & 0xff;
+            int bytesRemaining = b - keep + 1;
+            int bytesToTransfer = Math.min(3, bytesRemaining);
+            for (int j=8; j <= (bytesToTransfer << 3); j += 8)
+                result[i] |= ((a[b--] & 0xff) << j);
+        }
+    }
+
 }

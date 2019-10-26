@@ -32,15 +32,15 @@ public class RSATest {
 //        System.out.println(RSA.generatePrime(128));
         // RSA.generateKeys测试
 
-        int bitLength = 16;
-        BigInteger[] result;
-        result = RSA.generateKeys(bitLength);
-        BigInteger p = result[0];
-        BigInteger q = result[1];
-        BigInteger n = result[2];
-        BigInteger phi_n = result[3];
-        BigInteger e = result[4];
-        BigInteger d = result[5];
+//        int bitLength = 16;
+//        BigInteger[] result;
+//        result = RSA.generateKeys(bitLength);
+//        BigInteger p = result[0];
+//        BigInteger q = result[1];
+//        BigInteger n = result[2];
+//        BigInteger phi_n = result[3];
+//        BigInteger e = result[4];
+//        BigInteger d = result[5];
 //        Integer mInt = 12345;
 //        BigInteger mBigInt = new BigInteger(mInt.toString());
 //        System.out.println("原始消息: " + mBigInt.toString());
@@ -49,40 +49,51 @@ public class RSATest {
 //        BigInteger dBigInt = RSA.decrypt(eBigInt, d, n);
 //        System.out.println("解密后: " + dBigInt.toString());
 
-        System.out.println("请输入原始消息");
-        Scanner in = new Scanner(System.in);
-        String testString = in.nextLine();
-//        String testString = "这是测试文本hahaha！^-^";
-        try {
-            byte[] bytes1 = new byte[4];  //用于加密的数组
+//        System.out.println("请输入原始消息");
+//        Scanner in = new Scanner(System.in);
+//        String testString = in.nextLine();
+        String testString = "这是测试文本hahaha！^-^";
+        System.out.println(testString);
+        BigInteger bigInteger = new BigInteger(testString.getBytes());
+        System.out.println(bigInteger.abs().toString());
 
-            byte[] bytes = testString.getBytes("utf-8");  //字符串转化的字节流
-            byte[] bytesPad = new byte[bytes.length * 4];  //字符串转化的字节流
-            int[] ints = new int[bytes.length];
-            BigInteger[] eMeg = new BigInteger[bytes.length];
-            BigInteger[] dMeg = new BigInteger[bytes.length];
-            System.out.println("原始消息: " + testString);
-            System.out.print("加密后为: ");
-            for (int i = 0; i < bytes.length; i++) {
-                System.arraycopy(bytes, i, bytes1, 3, 1);
-                ints[i] = RSA.byteArrayToInt(bytes1);
-                eMeg[i] = new BigInteger(((Integer)ints[i]).toString());
-                eMeg[i] = RSA.encrypt(eMeg[i], e, n);
-                System.out.print(Integer.toHexString(eMeg[i].intValue()));
-            }
-            System.out.println();
-            for (int i = 0; i < eMeg.length; i++) {
-                dMeg[i] = RSA.decrypt(eMeg[i], d, n);
-                ints[i] = dMeg[i].intValue();
-                bytes1 = RSA.intToByteArray(ints[i]);
-                System.arraycopy(bytes1, 3, bytes, i, 1);
-            }
-            String decrypyString = new String(bytes, "utf-8");
-            System.out.println("解密后为: " + decrypyString);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        System.out.println(bigInteger.toString());
+        BigInteger bigInteger1 = new BigInteger(1, testString.getBytes());
+        System.out.println(bigInteger1.toString());
+        String string = new String(bigInteger.toByteArray());
+        System.out.println(string);
+        String string1 = new String(bigInteger1.abs().toByteArray());
+        System.out.println(string1);
+//        try {
+//            byte[] bytes1 = new byte[4];  //用于加密的数组
+//
+//            byte[] bytes = testString.getBytes("utf-8");  //字符串转化的字节流
+//            byte[] bytesPad = new byte[bytes.length * 4];  //字符串转化的字节流
+//            int[] ints = new int[bytes.length];
+//            BigInteger[] eMeg = new BigInteger[bytes.length];
+//            BigInteger[] dMeg = new BigInteger[bytes.length];
+//            System.out.println("原始消息: " + testString);
+//            System.out.print("加密后为: ");
+//            for (int i = 0; i < bytes.length; i++) {
+//                System.arraycopy(bytes, i, bytes1, 3, 1);
+//                ints[i] = RSA.byteArrayToInt(bytes1);
+//                eMeg[i] = new BigInteger(((Integer)ints[i]).toString());
+//                eMeg[i] = RSA.encrypt(eMeg[i], e, n);
+//                System.out.print(Integer.toHexString(eMeg[i].intValue()));
+//            }
+//            System.out.println();
+//            for (int i = 0; i < eMeg.length; i++) {
+//                dMeg[i] = RSA.decrypt(eMeg[i], d, n);
+//                ints[i] = dMeg[i].intValue();
+//                bytes1 = RSA.intToByteArray(ints[i]);
+//                System.arraycopy(bytes1, 3, bytes, i, 1);
+//            }
+//            String decrypyString = new String(bytes, "utf-8");
+//            System.out.println("解密后为: " + decrypyString);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
     }
 
 }

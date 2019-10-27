@@ -38,7 +38,16 @@ public class RSA {
      * @return
      */
     public static BigInteger gcd(BigInteger a, BigInteger b) {
-        return a.gcd(b);
+//        return a.gcd(b);
+        // 使用递归形式的欧几里得算法
+        // 如果b=0,返回
+        if (b.compareTo(BigInteger.ZERO) == 0) {
+            return a;
+        }
+        // 如果b!=0,递归
+        else {
+            return gcd(b, a.mod(b));
+        }
     }
 
     /**
@@ -193,6 +202,7 @@ public class RSA {
 
     /**
      * byte[]转BigInteger,无符号
+     * 现在byte[]高位加一个字节0,再转换成BigInteger
      * @param a
      * @return
      */
@@ -204,32 +214,47 @@ public class RSA {
     }
 
     /**
-     * BigInteger转byte[]
+     * BigInteger转指定长度的byte[]
      * @param bigInteger
      * @return
      */
-    public static byte[] bigIntegerToByteArray(BigInteger bigInteger) {
+    public static byte[] bigIntegerToByteArray(BigInteger bigInteger, int length) {
         byte[] b = bigInteger.toByteArray();
-        byte[] a = new byte[b.length - 1];
-        System.arraycopy(b, 1, a, 0, a.length);
+        byte[] a = new byte[length];
+        System.arraycopy(b, 0, a, a.length-b.length, b.length);
         return a;
     }
 
     /**
-     * 填充byte[]
+     * 将byte[]转换成指定长度
+     * 如果a.length > length,只保留低位
+     * 如果a.length < length,高位填充0
      * @param a
      * @param length
      * @return
      */
-    public static byte[] fillByteArray(byte[] a, int length) {
-        return null;
+    public static byte[] transformByteArray(byte[] a, int length) {
+        if (a.length == length) {
+            return a;
+        } else if (a.length > length) {
+            byte[] b = new byte[length];
+            System.arraycopy(a, a.length-b.length, b, 0, b.length);
+            return b;
+        } else {
+            byte[] b = new byte[length];
+            System.arraycopy(a, 0, b, length-a.length, a.length);
+            return b;
+        }
     }
 
     /**
      * 对byte[]分组,分组长度必须大于等于4字节
+     * 将length个byte转换成为1个BigInteger
+     * 如果最后剩余的byte个数小于length,使用0进行填充
+     * BigInteger[]的最后一个元素的值表示填充的字节数
      * @param a 待分组的字节数组
      * @param length 分组长度
-     * @return
+     * @return BigInteger[]
      */
     public static BigInteger[] doBlock(byte[] a, int length) {
         byte[] b = new byte[length];
@@ -327,6 +352,94 @@ public class RSA {
             bytes[i] = (byte)0;
         }
         return bytes;
+    }
+
+    /**
+     * 加密byte[]
+     * @param bytes
+     * @param e
+     * @param n
+     * @return
+     */
+    public static byte[] encryptByteArray(byte[] bytes, BigInteger e, BigInteger n) {
+        // 分组的字节数
+        // 根据n的大小自动生成分组字节数
+        int length = n.bitLength() / 8 - 1;
+        // 每个BigInteger转换成字节个数
+        // 加密后得到的BigInteger转输出byte[]使用
+        int bigIntegerToArrayLength = n.bitLength()/8 + 1;
+        // 将byte[]分组转换成BigInteger[]
+        BigInteger[] bigIntegers = doBlock(bytes, length);
+        // 加密后的BigInteger[]
+        BigInteger[] bigIntegersE = new BigInteger[bigIntegers.length];
+        // 暂存加密后的BirInteger转换成的byte[]
+        byte[] a;
+        byte[] result = new byte[bigIntegers.length * bigIntegerToArrayLength];
+        // 循环加密
+        for (int i = 0; i < bigIntegers.length; i++) {
+            bigIntegersE[i] = encrypt(bigIntegers[i], e, n);
+            a = bigIntegerToByteArray(bigIntegersE[i], bigIntegerToArrayLength);
+            System.arraycopy(a, 0, result, i*bigIntegerToArrayLength, a.length);
+        }
+        return result;
+    }
+
+    /**
+     * 解密byte[]
+     * @param bytes
+     * @param d
+     * @param n
+     * @return
+     */
+    public static byte[] decryptByteArray(byte[] bytes, BigInteger d, BigInteger n) {
+        // 分组的字节数
+        // 根据n的大小自动生成分组字节数
+        int blockNum = n.bitLength() / 8 - 1;
+        // bigIntegerToArrayLength个字节转换成1个BigInteger
+        // 输入的byte[]转BigInteger时使用
+        int bigIntegerToArrayLength = n.bitLength()/8 + 1;
+        // 解密后的BigInteger[]长度
+        int length = bytes.length / bigIntegerToArrayLength;
+        // 解密后的BigInteger[]
+        BigInteger[] bigIntegersD = new BigInteger[length];
+        // 暂存每次读取的bigIntegerToArrayLength个字节
+        byte[] a = new byte[bigIntegerToArrayLength];
+        for (int i = 0; i < length ; i++) {
+            System.arraycopy(bytes, i*bigIntegerToArrayLength, a, 0, bigIntegerToArrayLength);
+            bigIntegersD[i] = decrypt(byteArrayToBigInteger(a), d, n);
+        }
+        int fillNum = bigIntegersD[bigIntegersD.length-1].intValue();
+        if (fillNum == 0) {
+            // 用于返回的byte[]
+            byte[] result = new byte[(length-1)*blockNum];
+            // 用于暂存BigInteger得到的byte[]
+            byte[] b;
+            for (int i = 0; i < bigIntegersD.length - 1; i++) {
+                b = bigIntegersD[i].toByteArray();
+                // 将b转换成指定长度
+                b = transformByteArray(b, blockNum);
+                System.arraycopy(b, 0, result, i*blockNum, b.length);
+            }
+            return result;
+        } else {
+            // 用于返回的byte[]
+            byte[] result = new byte[(length-1)*blockNum - fillNum];
+            // 用于暂存BigInteger得到的byte[]
+            byte[] b;
+            for (int i = 0; i < bigIntegersD.length - 2; i++) {
+                b = bigIntegersD[i].toByteArray();
+                // 将b转换成指定长度
+                b = transformByteArray(b, blockNum);
+                System.arraycopy(b, 0, result, i*blockNum, b.length);
+            }
+            b = bigIntegersD[bigIntegersD.length-2].toByteArray();
+//            System.out.println(b.length);
+            b = transformByteArray(b, blockNum);
+//            b = transformByteArray(b, blockNum-fillNum);
+            System.arraycopy(b, 0, result, (bigIntegersD.length-2)*blockNum, blockNum-fillNum);
+            return result;
+        }
+
     }
 
 }

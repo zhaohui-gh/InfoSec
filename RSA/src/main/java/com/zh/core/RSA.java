@@ -1,7 +1,5 @@
 package com.zh.core;
 
-import com.sun.org.apache.bcel.internal.generic.BIPUSH;
-
 import java.math.BigInteger;
 import java.util.Random;
 
